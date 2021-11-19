@@ -19,7 +19,7 @@ async function postSingUp(req, res) {
   const passwordHash = bcrypt.hashSync(password, 10);
 
   try {
-    const emailUnique = await connection.query('SELECT * FROM users WHERE email = $1', [email]);
+    const emailUnique = await connection.query('SELECT * FROM users WHERE email = $1;', [email]);
     if (emailUnique.rowCount !== 0) {
       res.sendStatus(409);
       return;
