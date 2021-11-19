@@ -1,5 +1,5 @@
 import './setup.js';
-import app from './App.js';
+import app from './app.js';
 
 app.listen(process.env.PORT, () => {
 // eslint-disable-next-line no-console
