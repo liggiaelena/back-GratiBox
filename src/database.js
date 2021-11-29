@@ -19,6 +19,10 @@ if (process.env.NODE_ENV === 'prod') {
   };
 }
 
+console.log(process.env.DB_USER);
+console.log(process.env.DB_PORT);
+console.log(process.env.DATABASE_URL);
+
 const connection = new Pool(connectionData);
 
 export default connection;
