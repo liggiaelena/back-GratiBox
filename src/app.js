@@ -1,7 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import { postSingUp, postSingIn } from './controllers/registration.js';
-import { postSubscribeInfo, postSubscriptions, getSubscriptions } from './controllers/subscribe.js';
+import {
+  postSubscribeInfo, postSubscriptions, getSubscriptions, postDeliveryDays, getStates,
+} from './controllers/subscribe.js';
 
 const app = express();
 app.use(express.json());
@@ -16,5 +18,7 @@ app.post('/sing-in', (req, res) => postSingIn(req, res));
 app.post('/subscribe', (req, res) => postSubscribeInfo(req, res));
 app.post('/subscriptions', (req, res) => postSubscriptions(req, res));
 app.get('/subscriptions', (req, res) => getSubscriptions(req, res));
+app.post('/delivery-days', (req, res) => postDeliveryDays(req, res));
+app.get('/states', (req, res) => getStates(req, res));
 
 export default app;

@@ -71,6 +71,7 @@ async function postSingIn(req, res) {
       token,
     });
   } catch (e) {
+    console.log(e)
     res.sendStatus(500);
   }
 }

@@ -1,5 +1,5 @@
 import connection from '../database.js';
-import { subscribeValidation, subscriptionsValidation } from '../validations/registrationValidation.js';
+import { subscribeValidation } from '../validations/registrationValidation.js';
 
 async function postSubscribeInfo(req, res) {
   const { authorization } = req.headers;
@@ -49,14 +49,6 @@ async function postSubscriptions(req, res) {
     product3Id,
   } = req.body;
 
-  const validation = subscriptionsValidation.validate(req.body);
-  if (validation.error) {
-    res.status(400).send({
-      message: validation.error.details[0].message,
-    });
-    return;
-  }
-
   try {
     const user = await connection.query('SELECT * FROM sessions WHERE token = $1;', [token]);
     if (user.rowCount === 0) {
@@ -73,17 +65,17 @@ async function postSubscriptions(req, res) {
     if (product1Id) {
       await connection.query(`
           INSERT INTO subscriptions_products (subscription_id, product_id) VALUES ($1, $2);
-          `, [subscriptions.rows[0].id, product1Id]);
+          `, [subscriptions.rows[0].id, 1]);
     }
     if (product2Id) {
       await connection.query(`
           INSERT INTO subscriptions_products (subscription_id, product_id) VALUES ($1, $2);
-          `, [subscriptions.rows[0].id, product2Id]);
+          `, [subscriptions.rows[0].id, 2]);
     }
     if (product3Id) {
       await connection.query(`
         INSERT INTO subscriptions_products (subscription_id, product_id) VALUES ($1, $2);
-        `, [subscriptions.rows[0].id, product3Id]);
+        `, [subscriptions.rows[0].id, 3]);
     }
 
     res.sendStatus(201);
@@ -112,6 +104,10 @@ async function getSubscriptions(req, res) {
         JOIN delivery_days ON subscriptions.delivery_day_id = delivery_days.id
             WHERE subscriptions.user_id = $1;
             `, [user.rows[0].user_id]);
+    if (subscribers.rowCount === 0) {
+      res.sendStatus(404);
+      return;
+    }
 
     const products = await connection.query(`
         SELECT products.* FROM products JOIN subscriptions_products ON products.id = subscriptions_products.product_id WHERE subscriptions_products.subscription_id = $1;
@@ -127,8 +123,31 @@ async function getSubscriptions(req, res) {
   }
 }
 
+async function postDeliveryDays(req, res) {
+  const {
+    planName,
+  } = req.body;
+
+  const plan = await connection.query('SELECT * FROM plans WHERE name = $1', [planName]);
+  if (plan.rowCount === 0) {
+    res.sendStatus(404);
+  }
+
+  const delivery = await connection.query('SELECT * FROM delivery_days WHERE plan_id = $1;', [plan.rows[0].id]);
+
+  res.send(delivery.rows);
+}
+
+async function getStates(req, res) {
+  const states = await connection.query('SELECT * FROM states;');
+
+  res.send(states.rows);
+}
+
 export {
   postSubscribeInfo,
   postSubscriptions,
   getSubscriptions,
+  postDeliveryDays,
+  getStates,
 };

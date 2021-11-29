@@ -20,17 +20,8 @@ const subscribeValidation = Joi.object({
 
 });
 
-const subscriptionsValidation = Joi.object({
-  deliveryDayId: Joi.number().required(),
-  planId: Joi.number().required(),
-  product1: Joi.number(),
-  product2: Joi.number(),
-  product3: Joi.number(),
-});
-
 export {
   singUpValidation,
   singInValidation,
   subscribeValidation,
-  subscriptionsValidation,
 };
