@@ -38,7 +38,7 @@ async function postSubscribeInfo(req, res) {
   }
 }
 
-async function postSubscriptions(req, res) {
+async function postSubscription(req, res) {
   const { authorization } = req.headers;
   const token = authorization?.replace('Bearer ', '');
   const {
@@ -60,22 +60,22 @@ async function postSubscriptions(req, res) {
           INSERT INTO subscription (user_id, delivery_day_id, plan_id) VALUES ($1, $2, $3);
           `, [user.rows[0].user_id, deliveryDayId, planId]);
 
-    const subscriptions = await connection.query('SELECT * FROM subscription WHERE user_id = $1;', [user.rows[0].user_id]);
+    const subscription = await connection.query('SELECT * FROM subscription WHERE user_id = $1;', [user.rows[0].user_id]);
 
     if (product1Id) {
       await connection.query(`
-          INSERT INTO subscriptions_products (subscription_id, product_id) VALUES ($1, $2);
-          `, [subscriptions.rows[0].id, 1]);
+          INSERT INTO subscription_products (subscription_id, product_id) VALUES ($1, $2);
+          `, [subscription.rows[0].id, 1]);
     }
     if (product2Id) {
       await connection.query(`
-          INSERT INTO subscriptions_products (subscription_id, product_id) VALUES ($1, $2);
-          `, [subscriptions.rows[0].id, 2]);
+          INSERT INTO subscription_products (subscription_id, product_id) VALUES ($1, $2);
+          `, [subscription.rows[0].id, 2]);
     }
     if (product3Id) {
       await connection.query(`
-        INSERT INTO subscriptions_products (subscription_id, product_id) VALUES ($1, $2);
-        `, [subscriptions.rows[0].id, 3]);
+        INSERT INTO subscription_products (subscription_id, product_id) VALUES ($1, $2);
+        `, [subscription.rows[0].id, 3]);
     }
 
     res.sendStatus(201);
@@ -85,7 +85,7 @@ async function postSubscriptions(req, res) {
   }
 }
 
-async function getSubscriptions(req, res) {
+async function getSubscription(req, res) {
   const { authorization } = req.headers;
   const token = authorization?.replace('Bearer ', '');
 
@@ -110,7 +110,7 @@ async function getSubscriptions(req, res) {
     }
 
     const products = await connection.query(`
-        SELECT products.* FROM products JOIN subscriptions_products ON products.id = subscriptions_products.product_id WHERE subscriptions_products.subscription_id = $1;
+        SELECT products.* FROM products JOIN subscription_products ON products.id = subscription_products.product_id WHERE subscription_products.subscription_id = $1;
     `, [subscribers.rows[0].id]);
 
     res.send({
@@ -146,8 +146,8 @@ async function getStates(req, res) {
 
 export {
   postSubscribeInfo,
-  postSubscriptions,
-  getSubscriptions,
+  postSubscription,
+  getSubscription,
   postDeliveryDays,
   getStates,
 };
