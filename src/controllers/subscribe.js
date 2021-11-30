@@ -97,12 +97,12 @@ async function getSubscriptions(req, res) {
     }
 
     const subscribers = await connection.query(`
-      SELECT subscribers_info.registration_date, subscriptions.user_id, subscriptions.id, delivery_days.name AS delivery_days_name, plans.name AS plans_name
-        FROM subscriptions 
-        JOIN subscribers_info ON subscribers_info.user_id = subscriptions.user_id 
-        JOIN plans ON subscriptions.plan_id = plans.id
-        JOIN delivery_days ON subscriptions.delivery_day_id = delivery_days.id
-            WHERE subscriptions.user_id = $1;
+      SELECT subscribers_info.registration_date, subscription.user_id, subscription.id, delivery_days.name AS delivery_days_name, plans.name AS plans_name
+        FROM subscription 
+        JOIN subscribers_info ON subscribers_info.user_id = subscription.user_id 
+        JOIN plans ON subscription.plan_id = plans.id
+        JOIN delivery_days ON subscription.delivery_day_id = delivery_days.id
+            WHERE subscription.user_id = $1;
             `, [user.rows[0].user_id]);
     if (subscribers.rowCount === 0) {
       res.sendStatus(404);
