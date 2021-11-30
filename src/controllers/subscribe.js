@@ -60,7 +60,7 @@ async function postSubscriptions(req, res) {
           INSERT INTO subscription (user_id, delivery_day_id, plan_id) VALUES ($1, $2, $3);
           `, [user.rows[0].user_id, deliveryDayId, planId]);
 
-    const subscriptions = await connection.query('SELECT * FROM subscriptions WHERE user_id = $1;', [user.rows[0].user_id]);
+    const subscriptions = await connection.query('SELECT * FROM subscription WHERE user_id = $1;', [user.rows[0].user_id]);
 
     if (product1Id) {
       await connection.query(`
