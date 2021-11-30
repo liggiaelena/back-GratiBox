@@ -38,7 +38,7 @@ async function postSubscribeInfo(req, res) {
   }
 }
 
-async function postSubscription(req, res) {
+async function postSubscriptions(req, res) {
   const { authorization } = req.headers;
   const token = authorization?.replace('Bearer ', '');
   const {
@@ -57,25 +57,25 @@ async function postSubscription(req, res) {
     }
 
     await connection.query(`
-          INSERT INTO subscription (user_id, delivery_day_id, plan_id) VALUES ($1, $2, $3);
+          INSERT INTO subscriptions (user_id, delivery_day_id, plan_id) VALUES ($1, $2, $3);
           `, [user.rows[0].user_id, deliveryDayId, planId]);
 
-    const subscription = await connection.query('SELECT * FROM subscription WHERE user_id = $1;', [user.rows[0].user_id]);
+    const subscriptions = await connection.query('SELECT * FROM subscriptions WHERE user_id = $1;', [user.rows[0].user_id]);
 
     if (product1Id) {
       await connection.query(`
-          INSERT INTO subscription_products (subscription_id, product_id) VALUES ($1, $2);
-          `, [subscription.rows[0].id, 1]);
+          INSERT INTO subscriptions_products (subscription_id, product_id) VALUES ($1, $2);
+          `, [subscriptions.rows[0].id, 1]);
     }
     if (product2Id) {
       await connection.query(`
-          INSERT INTO subscription_products (subscription_id, product_id) VALUES ($1, $2);
-          `, [subscription.rows[0].id, 2]);
+          INSERT INTO subscriptions_products (subscription_id, product_id) VALUES ($1, $2);
+          `, [subscriptions.rows[0].id, 2]);
     }
     if (product3Id) {
       await connection.query(`
-        INSERT INTO subscription_products (subscription_id, product_id) VALUES ($1, $2);
-        `, [subscription.rows[0].id, 3]);
+        INSERT INTO subscriptions_products (subscription_id, product_id) VALUES ($1, $2);
+        `, [subscriptions.rows[0].id, 3]);
     }
 
     res.sendStatus(201);
@@ -85,7 +85,7 @@ async function postSubscription(req, res) {
   }
 }
 
-async function getSubscription(req, res) {
+async function getSubscriptions(req, res) {
   const { authorization } = req.headers;
   const token = authorization?.replace('Bearer ', '');
 
@@ -97,12 +97,12 @@ async function getSubscription(req, res) {
     }
 
     const subscribers = await connection.query(`
-      SELECT subscribers_info.registration_date, subscription.user_id, subscription.id, delivery_days.name AS delivery_days_name, plans.name AS plans_name
-        FROM subscription 
-        JOIN subscribers_info ON subscribers_info.user_id = subscription.user_id 
-        JOIN plans ON subscription.plan_id = plans.id
-        JOIN delivery_days ON subscription.delivery_day_id = delivery_days.id
-            WHERE subscription.user_id = $1;
+      SELECT subscribers_info.registration_date, subscriptions.user_id, subscriptions.id, delivery_days.name AS delivery_days_name, plans.name AS plans_name
+        FROM subscriptions 
+        JOIN subscribers_info ON subscribers_info.user_id = subscriptions.user_id 
+        JOIN plans ON subscriptions.plan_id = plans.id
+        JOIN delivery_days ON subscriptions.delivery_day_id = delivery_days.id
+            WHERE subscriptions.user_id = $1;
             `, [user.rows[0].user_id]);
     if (subscribers.rowCount === 0) {
       res.sendStatus(404);
@@ -110,7 +110,7 @@ async function getSubscription(req, res) {
     }
 
     const products = await connection.query(`
-        SELECT products.* FROM products JOIN subscription_products ON products.id = subscription_products.product_id WHERE subscription_products.subscription_id = $1;
+        SELECT products.* FROM products JOIN subscriptions_products ON products.id = subscriptions_products.product_id WHERE subscriptions_products.subscription_id = $1;
     `, [subscribers.rows[0].id]);
 
     res.send({
@@ -146,8 +146,8 @@ async function getStates(req, res) {
 
 export {
   postSubscribeInfo,
-  postSubscription,
-  getSubscription,
+  postSubscriptions,
+  getSubscriptions,
   postDeliveryDays,
   getStates,
 };
