@@ -80,7 +80,6 @@ async function postSubscriptions(req, res) {
 
     res.sendStatus(201);
   } catch (e) {
-    console.log(e);
     res.sendStatus(500);
   }
 }
@@ -118,7 +117,6 @@ async function getSubscriptions(req, res) {
       products: products.rows,
     });
   } catch (e) {
-    console.log(e);
     res.sendStatus(500);
   }
 }
